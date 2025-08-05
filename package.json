@@ -15,8 +15,5 @@
     "url": "https://github.com/Gasper-J/GitHubUserActivity/issues"
   },
   "homepage": "https://github.com/Gasper-J/GitHubUserActivity#readme",
-  "description": "",
-  "dependencies": {
-    "express": "^4.21.2"
-  }
+  "description": ""
 }
