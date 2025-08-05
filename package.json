@@ -15,5 +15,10 @@
     "url": "https://github.com/Gasper-J/GitHubUserActivity/issues"
   },
   "homepage": "https://github.com/Gasper-J/GitHubUserActivity#readme",
-  "description": ""
+  "description": "",
+  "dependencies": {
+    "axios": "^1.11.0",
+    "dotenv": "^17.2.1",
+    "readline-sync": "^1.4.10"
+  }
 }
