@@ -1,3 +1,11 @@
+// --------------------------------------------
+// Project Setup
+// --------------------------------------------
+// 1. Clone the repo
+// 2. Install dependencies:
+//    ```bash
+//    npm install
+
 // Trello Kanban
 // https://trello.com/b/0iAd749y/github-activity-progress
 
