@@ -1,7 +1,7 @@
 const dotenv = require('dotenv');
-const { getUsername, getAmount, askSearchAgain } = require('./userInput');
-const { axiosWithRetry } = require('./githubApi');
-const showOutput = require('./outputFormatter').showOutput;
+const { getUsername, getAmount, askSearchAgain } = require('./src/userInput');
+const { axiosWithRetry } = require('./src/githubApi');
+const showOutput = require('./src/outputFormatter').showOutput;
 
 dotenv.config();
 
