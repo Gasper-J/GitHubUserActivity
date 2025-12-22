@@ -39,7 +39,7 @@ async function getUserEvents() {
       }
 
       // Display results
-      console.clear();
+      // console.clear();
       console.log(showOutput(res));
 
       // Prompt if the user wants to search another account
