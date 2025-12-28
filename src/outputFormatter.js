@@ -4,8 +4,6 @@ const getPushEventCommitCount = (...args) => require('./githubApi').getPushEvent
 async function showOutput(res) {
   const events = res.data;
 
-  console.log(res.data);
-
   if (!events.length) {
     return 'No events found for this user.';
   }
