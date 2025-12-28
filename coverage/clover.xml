@@ -1,10 +1,93 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<coverage generated="1755265604751" clover="3.2.0">
-  <project timestamp="1755265604751" name="All files">
-    <metrics statements="10" coveredstatements="10" conditionals="5" coveredconditionals="5" methods="3" coveredmethods="3" elements="18" coveredelements="18" complexity="0" loc="10" ncloc="10" packages="1" files="1" classes="1"/>
-    <file name="userInput.js" path="C:\Jayden's Mess\GithubUserActivity\userInput.js">
+<coverage generated="1766947947764" clover="3.2.0">
+  <project timestamp="1766947947764" name="All files">
+    <metrics statements="87" coveredstatements="46" conditionals="62" coveredconditionals="24" methods="8" coveredmethods="6" elements="157" coveredelements="76" complexity="0" loc="87" ncloc="87" packages="1" files="3" classes="3"/>
+    <file name="githubApi.js" path="C:\Users\jd1da\OneDrive\Desktop\Projects\JavaScript\GitHubUserActivity\src\githubApi.js">
+      <metrics statements="52" coveredstatements="13" conditionals="49" coveredconditionals="12" methods="3" coveredmethods="1"/>
+      <line num="1" count="2" type="stmt"/>
+      <line num="2" count="2" type="stmt"/>
+      <line num="3" count="2" type="stmt"/>
+      <line num="7" count="5" type="stmt"/>
+      <line num="8" count="9" type="stmt"/>
+      <line num="9" count="9" type="stmt"/>
+      <line num="11" count="8" type="stmt"/>
+      <line num="13" count="8" type="cond" truecount="2" falsecount="0"/>
+      <line num="17" count="6" type="cond" truecount="2" falsecount="0"/>
+      <line num="18" count="4" type="stmt"/>
+      <line num="21" count="2" type="cond" truecount="4" falsecount="1"/>
+      <line num="22" count="2" type="stmt"/>
+      <line num="25" count="0" type="stmt"/>
+      <line num="29" count="0" type="stmt"/>
+      <line num="33" count="0" type="stmt"/>
+      <line num="35" count="0" type="stmt"/>
+      <line num="37" count="0" type="stmt"/>
+      <line num="38" count="0" type="stmt"/>
+      <line num="39" count="0" type="stmt"/>
+      <line num="42" count="0" type="stmt"/>
+      <line num="43" count="0" type="stmt"/>
+      <line num="56" count="0" type="stmt"/>
+      <line num="57" count="0" type="stmt"/>
+      <line num="58" count="0" type="stmt"/>
+      <line num="60" count="0" type="cond" truecount="0" falsecount="4"/>
+      <line num="61" count="0" type="stmt"/>
+      <line num="62" count="0" type="stmt"/>
+      <line num="66" count="0" type="stmt"/>
+      <line num="67" count="0" type="stmt"/>
+      <line num="68" count="0" type="stmt"/>
+      <line num="71" count="0" type="stmt"/>
+      <line num="74" count="0" type="cond" truecount="0" falsecount="4"/>
+      <line num="75" count="0" type="stmt"/>
+      <line num="77" count="0" type="cond" truecount="0" falsecount="2"/>
+      <line num="79" count="0" type="stmt"/>
+      <line num="86" count="0" type="cond" truecount="0" falsecount="2"/>
+      <line num="87" count="0" type="cond" truecount="0" falsecount="4"/>
+      <line num="89" count="0" type="stmt"/>
+      <line num="90" count="0" type="stmt"/>
+      <line num="100" count="0" type="stmt"/>
+      <line num="101" count="0" type="stmt"/>
+      <line num="102" count="0" type="cond" truecount="0" falsecount="2"/>
+      <line num="104" count="0" type="cond" truecount="0" falsecount="4"/>
+      <line num="105" count="0" type="stmt"/>
+      <line num="106" count="0" type="stmt"/>
+      <line num="110" count="0" type="cond" truecount="0" falsecount="4"/>
+      <line num="114" count="0" type="cond" truecount="0" falsecount="2"/>
+      <line num="117" count="0" type="cond" truecount="0" falsecount="4"/>
+      <line num="118" count="0" type="stmt"/>
+      <line num="120" count="0" type="cond" truecount="0" falsecount="2"/>
+      <line num="122" count="0" type="stmt"/>
+      <line num="126" count="2" type="stmt"/>
+    </file>
+    <file name="outputFormatter.js" path="C:\Users\jd1da\OneDrive\Desktop\Projects\JavaScript\GitHubUserActivity\src\outputFormatter.js">
+      <metrics statements="25" coveredstatements="23" conditionals="8" coveredconditionals="7" methods="2" coveredmethods="2"/>
+      <line num="2" count="2" type="stmt"/>
+      <line num="5" count="4" type="stmt"/>
+      <line num="7" count="4" type="cond" truecount="2" falsecount="0"/>
+      <line num="8" count="1" type="stmt"/>
+      <line num="11" count="3" type="stmt"/>
+      <line num="14" count="3" type="stmt"/>
+      <line num="15" count="4" type="stmt"/>
+      <line num="16" count="4" type="stmt"/>
+      <line num="17" count="4" type="stmt"/>
+      <line num="19" count="4" type="cond" truecount="2" falsecount="0"/>
+      <line num="21" count="2" type="stmt"/>
+      <line num="22" count="2" type="stmt"/>
+      <line num="24" count="2" type="stmt"/>
+      <line num="25" count="2" type="stmt"/>
+      <line num="26" count="2" type="cond" truecount="3" falsecount="1"/>
+      <line num="27" count="0" type="stmt"/>
+      <line num="31" count="0" type="stmt"/>
+      <line num="34" count="2" type="stmt"/>
+      <line num="35" count="2" type="stmt"/>
+      <line num="38" count="2" type="stmt"/>
+      <line num="39" count="2" type="stmt"/>
+      <line num="41" count="2" type="stmt"/>
+      <line num="42" count="2" type="stmt"/>
+      <line num="47" count="3" type="stmt"/>
+      <line num="50" count="2" type="stmt"/>
+    </file>
+    <file name="userInput.js" path="C:\Users\jd1da\OneDrive\Desktop\Projects\JavaScript\GitHubUserActivity\src\userInput.js">
       <metrics statements="10" coveredstatements="10" conditionals="5" coveredconditionals="5" methods="3" coveredmethods="3"/>
-      <line num="1" count="1" type="stmt"/>
+      <line num="1" count="3" type="stmt"/>
       <line num="4" count="1" type="stmt"/>
       <line num="8" count="5" type="stmt"/>
       <line num="9" count="5" type="stmt"/>
@@ -13,7 +96,7 @@
       <line num="13" count="3" type="stmt"/>
       <line num="16" count="2" type="stmt"/>
       <line num="20" count="2" type="stmt"/>
-      <line num="23" count="1" type="stmt"/>
+      <line num="23" count="3" type="stmt"/>
     </file>
   </project>
 </coverage>
