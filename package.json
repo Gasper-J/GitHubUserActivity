@@ -3,19 +3,7 @@
   "version": "1.0.0",
   "main": "index.js",
   "scripts": {
-    "test": "jest",
-    "test:watch": "jest --watch",
-    "test:coverage": "jest --coverage"
-  },
-  "jest": {
-    "collectCoverageFrom": [
-      "src/**/*.js"
-    ],
-    "coverageDirectory": "coverage",
-    "coverageReporters": [
-      "text",
-      "lcov"
-    ]
+    "test": "jest --runInBand"
   },
   "repository": {
     "type": "git",
