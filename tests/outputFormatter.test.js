@@ -1,12 +1,21 @@
 const { showOutput } = require('../src/outputFormatter');
+const githubApi = require('../src/githubApi');
 
 describe('showOutput', () => {
-  it('should return message when no events are found', () => {
-    const res = { data: [] };
-    expect(showOutput(res)).toBe('No events found for this user.');
+  afterEach(() => {
+    jest.restoreAllMocks();
   });
 
-  it('should format PushEvent correctly', () => {
+  it('should return message when no events are found', async () => {
+    const res = { data: [] };
+    const output = await showOutput(res);
+    expect(output).toBe('No events found for this user.');
+  });
+
+  it('should format PushEvent correctly', async () => {
+    // mock the compare helper to avoid network calls
+    jest.spyOn(githubApi, 'getPushEventCommitCount').mockResolvedValue(2);
+
     const res = {
       data: [
         {
@@ -14,16 +23,16 @@ describe('showOutput', () => {
           type: 'PushEvent',
           repo: { name: 'octo/repo' },
           created_at: '2023-10-01T12:00:00Z',
-          payload: { commits: [{}, {}] }
+          payload: { commits: [{}, {}], head: 'abc', before: 'def' }
         }
       ]
     };
-    const output = showOutput(res);
+    const output = await showOutput(res);
     expect(output).toContain('octocat');
     expect(output).toContain('Pushed 2 commits to octo/repo');
   });
 
-  it('should format DeleteEvent correctly', () => {
+  it('should format DeleteEvent correctly', async () => {
     const res = {
       data: [
         {
@@ -35,12 +44,15 @@ describe('showOutput', () => {
         }
       ]
     };
-    const output = showOutput(res);
+    const output = await showOutput(res);
     expect(output).toContain('octocat');
     expect(output).toContain('Deleted branch named feature-branch from octo/repo');
   });
 
-  it('should handle multiple events', () => {
+  it('should handle multiple events', async () => {
+    // mock compare helper for the push event
+    jest.spyOn(githubApi, 'getPushEventCommitCount').mockResolvedValue(2);
+
     const res = {
       data: [
         {
@@ -48,7 +60,7 @@ describe('showOutput', () => {
           type: 'PushEvent',
           repo: { name: 'octo/repo1' },
           created_at: '2023-10-01T12:00:00Z',
-          payload: { commits: [{}, {}] }
+          payload: { commits: [{}, {}], head: 'abc', before: 'def' }
         },
         {
           actor: { display_login: 'octocat' },
@@ -59,7 +71,7 @@ describe('showOutput', () => {
         }
       ]
     };
-    const output = showOutput(res);
+    const output = await showOutput(res);
     expect(output).toContain('Pushed 2 commits to octo/repo1');
     expect(output).toContain('Deleted branch named old-branch from octo/repo2');
   });
