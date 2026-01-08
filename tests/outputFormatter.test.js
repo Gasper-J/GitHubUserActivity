@@ -9,7 +9,7 @@ describe('showOutput', () => {
   it('should return message when no events are found', async () => {
     const res = { data: [] };
     const output = await showOutput(res);
-    expect(output).toBe('No events found for this user.');
+    expect(output).toBe('No public events found for this user in the last 90 days.');
   });
 
   it('should format PushEvent correctly', async () => {

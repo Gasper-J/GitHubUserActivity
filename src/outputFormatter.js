@@ -5,7 +5,7 @@ async function showOutput(res) {
   const events = res.data;
 
   if (!events.length) {
-    return 'No events found for this user.';
+    return 'No public events found for this user in the last 90 days.';
   }
 
   let output = `${events[0].actor.display_login}\n--------------------------------------------\n`;
