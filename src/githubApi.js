@@ -1,38 +1,57 @@
 const axios = require('axios');
+const logger = require('../logging');
 const { getUsername, getAmount, askSearchAgain } = require('./userInput');
 const showOutput = require('./outputFormatter').showOutput;
 
 async function axiosWithRetry(url, options, retries = 3, backoff = 500) {
+  const safeOptions = {...options, headers: logger.maskSensitiveInfo(options.headers) };
+
+  logger.debug("Making request", { url, options: safeOptions });
+
   let lastError;
   for (let attempt = 1; attempt <= retries; attempt++) {
     try {
+      logger.debug(`Attempt ${attempt} for request`, { url });
+
       return await axios(url, options);
     } catch (err) {
       lastError = err;
-      // Only retry for network errors
-      if (
-        err.code === 'ECONNABORTED' ||
-        err.code === 'ENOTFOUND'
-      ) {
+
+      // Retry for network errors only
+      if (err.code === 'ECONNABORTED' || err.code === 'ENOTFOUND') {
         if (attempt === retries) throw err; // Throw after last attempt
+        logger.warn(`Request failed (attempt ${attempt}), retrying in ${backoff}ms`, { url, error: err.message });
+
         continue;
       }
+
       // Do not retry on 4xx or 5xx errors
       if (err.response && err.response.status >= 400 && err.response.status < 600) {
+        logger.debug(`Request failed with status ${err.response.status}`, { url, data: err.response.data });
+
         throw err;
       }
-      // For any other error, throw immediately
+
+      // Other errors: no retry
+      logger.debug(`Request failed with unknown error`, { url, error: err.message });
+
       throw err;
     }
   }
   // If all retries failed, throw the last error
+  logger.error(`All ${retries} attempts failed`, { url, lastError: lastError.message });
+
   throw lastError;
 }
 
 async function getUserEvents() {
+  logger.info('Starting GitHub user events retrieval process.');
+
   let continueSearch = true;
 
   while (continueSearch) {
+    logger.info('Prompting user for GitHub username and event amount.');
+
     // Prompt the user for the parameters
     const username = getUsername();
     const amountNum = getAmount();
@@ -47,22 +66,27 @@ async function getUserEvents() {
         'User-Agent': 'GasperJ-GitHub-User-Activity',
         'Authorization': `Bearer ${process.env.API_KEY}`
       },
-      params: {
-        per_page: amountNum,
-      },
-      timeout: 5000,
+      params: { per_page: amountNum },
+      timeout: 5000
     };
 
     try {
+      logger.debug('Fetching user events', {username, amount: amountNum });
+
       const res = await axiosWithRetry(url, options);
+
       const remaining = res.headers['x-ratelimit-remaining'];
-      
+
       if (remaining && remaining <= 0) {
+        logger.warn('Rate limit exceeded', { username });
+
         console.log('GitHub API rate limit exceeded. Please wait before retrying.');
         return;
       }
 
       // Display results
+      logger.info('Formatting and displaying output', { username });
+
       const output = await showOutput(res);
       console.clear();
       console.log(output);
@@ -71,17 +95,22 @@ async function getUserEvents() {
       continueSearch = askSearchAgain();
       
     } catch(err) {
-      if (err.response && err.response.data) {
-        console.log("Failed after retries: ", err.response.data);
-      } else {
-        console.log("Failed after retries: ", err.message || err);
-      }
+      logger.error('API request failed', { username, error: err.response?.data || err.message, stack: err.stack });
+      console.log("Request failed: ", err.response?.data || err.message);
+      logger.info('Ending GitHub user events retrieval process due to error.');
+      
       continueSearch = false; // Stop the loop on error
     }
+    logger.info('Completed one iteration of retrieval process.', { username });
+
   }
+  logger.info('Finished GitHub user events retrieval process.');
+
 }
 
 async function getPushEventCommitCount(pushBefore, pushHead, repoName) {
+  logger.debug(`Fetching commit count for push event`, { repoName, pushBefore, pushHead });
+
   // Validate repoName format
   const [owner, repo] = (repoName || '').split('/');
   if (!owner || !repo) return null;
@@ -98,27 +127,27 @@ async function getPushEventCommitCount(pushBefore, pushHead, repoName) {
   };
 
   try {
+    logger.debug('Making API request', { url });
+
     const res = await axiosWithRetry(url, options);
     const remaining = res.headers && res.headers['x-ratelimit-remaining'];
     
     if (remaining && remaining <= 0) {
+      logger.warn('Rate limit exceeded for compare API.', { repoName });
+
       console.log('GitHub API rate limit exceeded. Please wait before retrying.');
       return null;
     }
 
     // Prefer total_commits if available, otherwise fall back to commits array length
-    const totalCommits = (res.data && (typeof res.data.total_commits === 'number'
-      ? res.data.total_commits
-      : (Array.isArray(res.data.commits) ? res.data.commits.length : null)));
+    const totalCommits = res.data?.total_commits ?? res.data?.commits?.length ?? null;
 
-    return totalCommits ?? null;
+    return totalCommits;
     
   } catch(err) {
-    if (err.response && err.response.data) {
-      console.log("Failed fetching compare: ", err.response.data);
-    } else {
-      console.log("Failed fetching compare: ", err.message || err);
-    }
+    logger.error('Compare API request failed', {repoName, error: err.response?.data || err.message, stack: err.stack });
+    console.log('Failed fetching compare: ', err.response?.data || err.message);
+
     return null;
   }
 }
