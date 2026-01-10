@@ -25,20 +25,27 @@ function formatMeta(meta) {
 }
 
 function log(level, message, meta = {}) {
-  if (!stream) {
-    throw new Error("Logger not initialized. Call initLogger() first.");
+  // Don't write debug logs unless verbose logging is enabled
+  if (level === 'debug' && !verbose) {
+    return;
   }
 
   const timestamp = new Date().toISOString();
   const entry = `[${timestamp}] [${level.toUpperCase()}] ${message}${formatMeta(meta)}`;
-  
-  stream.write(entry + "\n");
 
-  // Log to console
-  // if (level === 'error') console.error(message);
-  // else if (level === 'warn') console.warn(message);
-  // else if (level === 'debug' && verbose) console.debug(message);
-  // else if (level === 'info') console.info(message);
+  // If stream is available, write to the file; otherwise do nothing.
+  if (stream) {
+    stream.write(entry + "\n");
+  }
+
+  // Console logging is intentionally disabled by default.
+  // To enable console output during development, uncomment the lines below:
+  /*
+  if (level === 'error') console.error(message);
+  else if (level === 'warn') console.warn(message);
+  else if (level === 'debug' && verbose) console.debug(message);
+  else if (level === 'info') console.info(message);
+  */
 }
 
 function maskSensitiveInfo(headers) {
