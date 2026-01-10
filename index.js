@@ -1,4 +1,5 @@
-const dotenv = require('dotenv');
+require('dotenv').config();
+
 const logger = require('./logging');
 const { axiosWithRetry, getUserEvents, getPushEventCommitCount } = require('./src/githubApi');
 
@@ -17,8 +18,6 @@ process.on('unhandledRejection', (reason) => {
   process.exit(1);
 });
 
-logger.info('CLI started.', { args: process.argv.splice(2) });
-
-dotenv.config();
+logger.info('CLI started.', { args: process.argv.slice(2) });
 
 getUserEvents();
