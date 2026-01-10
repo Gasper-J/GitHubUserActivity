@@ -1,0 +1,66 @@
+const { time } = require("console");
+const fs = require("fs");
+const path = require("path");
+
+const logDir = path.join(process.cwd(), 'logs');
+const logFile = path.join(logDir, 'app.log');
+
+let stream;
+let verbose = false;
+
+function initLogger({ enableVerbose = false } = {}) {
+  verbose = enableVerbose;
+
+  if (!fs.existsSync(logDir)){
+      fs.mkdirSync(logDir, { recursive: true });
+  }
+
+  stream = fs.createWriteStream(logFile, { flags: 'a' });
+}
+
+function formatMeta(meta) {
+  if (!meta || Object.keys(meta).length === 0) return '';
+
+  return ` ${JSON.stringify(meta)}`;
+}
+
+function log(level, message, meta = {}) {
+  // Don't write debug logs unless verbose logging is enabled
+  if (level === 'debug' && !verbose) {
+    return;
+  }
+
+  const timestamp = new Date().toISOString();
+  const entry = `[${timestamp}] [${level.toUpperCase()}] ${message}${formatMeta(meta)}`;
+
+  // If stream is available, write to the file; otherwise do nothing.
+  if (stream) {
+    stream.write(entry + "\n");
+  }
+
+  // Console logging is intentionally disabled by default.
+  // To enable console output during development, uncomment the lines below:
+  /*
+  if (level === 'error') console.error(message);
+  else if (level === 'warn') console.warn(message);
+  else if (level === 'debug' && verbose) console.debug(message);
+  else if (level === 'info') console.info(message);
+  */
+}
+
+function maskSensitiveInfo(headers) {
+  const safeHeaders = { ...headers };
+  if (safeHeaders['Authorization']) {
+    safeHeaders['Authorization'] = '[REDACTED]';
+  }
+  return safeHeaders;
+}
+
+module.exports = { 
+  initLogger,
+  info: (msg, meta) => log('info', msg, meta),
+  warn: (msg, meta) => log('warn', msg, meta),
+  error: (msg, meta) => log('error', msg, meta),
+  debug: (msg, meta) => log('debug', msg, meta),
+  maskSensitiveInfo
+ };
