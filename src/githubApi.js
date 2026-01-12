@@ -8,7 +8,17 @@ async function axiosWithRetry(url, options, retries = 3, backoff = 500) {
 
   logger.debug("Making request", { url, options: safeOptions });
 
+  // Define which HTTP status codes are retryable
+  const RETRYABLE_STATUS_CODES = new Set([
+    429, // Too Many Requests
+    500, // Internal Server Error
+    502, // Bad Gateway
+    503, // Service Unavailable
+    504  // Gateway Timeout
+  ]);
+
   let lastError;
+
   for (let attempt = 1; attempt <= retries; attempt++) {
     try {
       logger.debug(`Attempt ${attempt} for request`, { url });
@@ -22,23 +32,41 @@ async function axiosWithRetry(url, options, retries = 3, backoff = 500) {
         if (attempt === retries) throw err; // Throw after last attempt
         logger.warn(`Request failed (attempt ${attempt}), retrying in ${backoff}ms`, { url, error: err.message });
 
+        await new Promise(res => setTimeout(res, backoff));
+
         continue;
       }
 
-      // Do not retry on 4xx or 5xx errors
-      if (err.response && err.response.status >= 400 && err.response.status < 600) {
-        logger.debug(`Request failed with status ${err.response.status}`, { url, data: err.response.data });
+      // Retry for retryable HTTP status codes
+      if (err.response) {
+        const { status } = err.response;
+
+        if (RETRYABLE_STATUS_CODES.has(status) && attempt < retries) {
+          logger.warn(`HTTP ${status} (attempt ${attempt}), retrying in ${backoff}ms`, { url });
+          await new Promise(res => setTimeout(res, backoff));
+          continue;
+        }
+
+        // Non-retryable HTTP error: log and throw
+        logger.debug(`Request failed with status ${status} on attempt ${attempt}`, { 
+          url, 
+          data: err.response.data 
+        });
 
         throw err;
       }
 
-      // Other errors: no retry
-      logger.debug(`Request failed with unknown error`, { url, error: err.message });
+      // Other unknown errors: log and throw
+      logger.debug(`Request failed with unknown error`, { 
+        url, 
+        error: err.message 
+      });
 
       throw err;
     }
   }
-  // If all retries failed, throw the last error
+  
+  // All retries exhausted
   logger.error(`All ${retries} attempts failed`, { url, lastError: lastError.message });
 
   throw lastError;
