@@ -72,7 +72,7 @@ async function axiosWithRetry(url, options, retries = 3, backoff = 500) {
   throw lastError;
 }
 
-async function getUserEvents() {
+async function getUserEvents(username, amountNum) {
   logger.info('Starting GitHub user events retrieval process.');
 
   let continueSearch = true;
@@ -80,9 +80,6 @@ async function getUserEvents() {
   while (continueSearch) {
     logger.info('Prompting user for GitHub username and event amount.');
 
-    // Prompt the user for the parameters
-    const username = getUsername();
-    const amountNum = getAmount();
     continueSearch = false;
 
     // Set request variables
