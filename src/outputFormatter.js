@@ -61,6 +61,59 @@ async function showOutput(res) {
         output += `- Deleted ${deletedType} named ${deletedName} from ${eventRepo} at ${formattedTime}\n`;
         break;
       }
+      case 'WatchEvent': {
+        logger.debug('Handling WatchEvent type.');
+
+        output += `- Starred ${eventRepo} at ${formattedTime}\n`;
+        break;
+      }
+      case 'ForkEvent': {
+        logger.debug('Handling ForkEvent type.');
+
+        output += `- Forked ${eventRepo} at ${formattedTime}\n`;
+        break;
+      }
+      case 'ReleaseEvent': {
+        logger.debug('Handling ReleaseEvent type.');
+
+        const tag = event.payload.release?.tag_name || 'unknown';
+
+        output += `- Released ${tag} for ${eventRepo} at ${formattedTime}\n`;
+        break;
+      }
+      case 'PublicEvent': {
+        logger.debug('Handling PublicEvent type.');
+
+        output += `- Made ${eventRepo} public at ${formattedTime}\n`;
+        break;
+      }
+      case 'GollumEvent': {
+        logger.debug('Handling GollumEvent type.');
+
+        const page = event.payload.pages?.[0]?.page_name || 'unknown page';
+        output += `- Edited wiki page "${page}" in ${eventRepo} at ${formattedTime}\n`;
+        break;
+      }
+      case 'PullRequestEvent': {
+        logger.debug('Handling PullRequestEvent type.');
+
+        const action = event.payload.action;
+        const prNumber = event.payload.pull_request?.number;
+        const prTitle = event.payload.pull_request?.title || 'unknown title';
+        const merged = event.payload.pull_request?.merged;
+
+        let actionText = action.charAt(0).toUpperCase() + action.slice(1);
+        if (action === 'closed' && merged) {
+          actionText = 'Merged';
+        }
+
+        output += `- ${actionText} pull request #${prNumber} "${prTitle}" in ${eventRepo} at ${formattedTime}\n`;
+        break;
+      }
+      default: {
+        logger.debug(`Unhandled event type: ${event.type}`);
+        output += `- Unhandled event type: ${event.type}\n`;
+      }
     }
   }
   logger.info('Completed formatting output for user events.');
