@@ -1,7 +1,5 @@
 const axios = require('axios');
 const logger = require('../logging');
-const { getUsername, getAmount, askSearchAgain } = require('./userInput');
-const showOutput = require('./outputFormatter').showOutput;
 
 async function axiosWithRetry(url, options, retries = 3, backoff = 500) {
   const safeOptions = {...options, headers: logger.maskSensitiveInfo(options.headers) };
@@ -72,65 +70,49 @@ async function axiosWithRetry(url, options, retries = 3, backoff = 500) {
   throw lastError;
 }
 
-async function getUserEvents() {
+async function getUserEvents(username, amountNum) {
   logger.info('Starting GitHub user events retrieval process.');
 
-  let continueSearch = true;
+  logger.info('Prompting user for GitHub username and event amount.');
 
-  while (continueSearch) {
-    logger.info('Prompting user for GitHub username and event amount.');
+  // Set request variables
+  const url = `https://api.github.com/users/${username}/events/public`;
+  const options = {
+    method: 'get',
+    headers: {
+      'Accept': 'application/json',
+      'User-Agent': 'GasperJ-GitHub-User-Activity',
+      'Authorization': `Bearer ${process.env.API_KEY}`
+    },
+    params: { per_page: amountNum },
+    timeout: 5000
+  };
 
-    // Prompt the user for the parameters
-    const username = getUsername();
-    const amountNum = getAmount();
-    continueSearch = false;
+  try {
+    logger.debug('Fetching user events', {username, amount: amountNum });
 
-    // Set request variables
-    const url = `https://api.github.com/users/${username}/events/public`;
-    const options = {
-      method: 'get',
-      headers: {
-        'Accept': 'application/json',
-        'User-Agent': 'GasperJ-GitHub-User-Activity',
-        'Authorization': `Bearer ${process.env.API_KEY}`
-      },
-      params: { per_page: amountNum },
-      timeout: 5000
-    };
+    const res = await axiosWithRetry(url, options);
 
-    try {
-      logger.debug('Fetching user events', {username, amount: amountNum });
+    const remaining = res.headers['x-ratelimit-remaining'];
 
-      const res = await axiosWithRetry(url, options);
+    if (remaining && remaining <= 0) {
+      logger.warn('Rate limit exceeded', { username });
 
-      const remaining = res.headers['x-ratelimit-remaining'];
-
-      if (remaining && remaining <= 0) {
-        logger.warn('Rate limit exceeded', { username });
-
-        console.log('GitHub API rate limit exceeded. Please wait before retrying.');
-        return;
-      }
-
-      // Display results
-      logger.info('Formatting and displaying output', { username });
-
-      const output = await showOutput(res);
-      console.clear();
-      console.log(output);
-
-      // Prompt if the user wants to search another account
-      continueSearch = askSearchAgain();
-      
-    } catch(err) {
-      logger.error('API request failed', { username, error: err.response?.data || err.message, stack: err.stack });
-      console.log("Request failed: ", err.response?.data || err.message);
-      logger.info('Ending GitHub user events retrieval process due to error.');
-      
-      continueSearch = false; // Stop the loop on error
+      console.log('GitHub API rate limit exceeded. Please wait before retrying.');
+      return;
     }
-    logger.info('Completed one iteration of retrieval process.', { username });
 
+    // Display results
+    logger.info('Formatting and displaying output', { username });
+
+    return res;
+    
+  } catch(err) {
+    logger.error('API request failed', { username, error: err.response?.data || err.message, stack: err.stack });
+    console.log("Request failed: ", err.response?.data || err.message);
+    logger.info('Ending GitHub user events retrieval process due to error.');
+    
+    logger.info('Completed one iteration of retrieval process.', { username });
   }
   logger.info('Finished GitHub user events retrieval process.');
 

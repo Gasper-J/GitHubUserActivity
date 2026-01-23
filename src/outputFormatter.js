@@ -65,6 +65,7 @@ async function showOutput(res) {
   }
   logger.info('Completed formatting output for user events.');
 
+  console.clear();
   return output;
 }
 

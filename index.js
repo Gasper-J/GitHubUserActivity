@@ -2,6 +2,8 @@ require('dotenv').config();
 
 const logger = require('./logging');
 const { axiosWithRetry, getUserEvents, getPushEventCommitCount } = require('./src/githubApi');
+const { getUsername, getAmount, askSearchAgain } = require('./src/userInput');
+const { showOutput } = require('./src/outputFormatter');
 
 // Check if user enabled --verbose
 const enableVerbose = process.argv.includes('--verbose') || process.argv.includes('-v');
@@ -20,4 +22,21 @@ process.on('unhandledRejection', (reason) => {
 
 logger.info('CLI started.', { args: process.argv.slice(2) });
 
-getUserEvents();
+(async() => {
+  let username;
+  let amount;
+  let continueLoop = false;
+
+  do {
+    username = getUsername();
+    amount = getAmount();
+
+    const res = await getUserEvents(username, amount);
+    const output = await showOutput(res);
+
+    console.log(output);
+
+    continueLoop = askSearchAgain();
+  } while (continueLoop);
+})();
+
