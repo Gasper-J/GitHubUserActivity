@@ -54,6 +54,37 @@ async function showOutput(res) {
         output += `- Edited wiki page "${page}" in ${eventRepo} at ${formattedTime}\n`;
         break;
       }
+      case 'IssueCommentEvent': {
+        logger.debug('Handling IssueCommentEvent type.');
+
+         const action = event.payload.action;
+         const issueNumber = event.payload.issue?.number;
+         const isPullRequest = !!event.payload.issue?.pull_request;
+
+         let actionText;
+         let itemType = isPullRequest ? 'pull request' : 'issue';
+
+         switch (action) {
+          case 'created': {
+            actionText = 'Commented on';
+            break;
+          }
+          case 'edited': {
+            actionText = 'Edited comment on';
+            break;
+          }
+          case 'deleted': {
+            actionText = 'Deleted comment on';
+            break;
+          }
+          default: {
+            actionText = `${action.charAt(0).toUpperCase() + action.slice(1)} comment on`;
+          }
+        }
+
+        output += `- ${actionText} ${itemType} #${issueNumber} in ${eventRepo} at ${formattedTime}\n`;
+        break;
+      }
       case 'PublicEvent': {
         logger.debug('Handling PublicEvent type.');
 
