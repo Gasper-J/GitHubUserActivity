@@ -24,6 +24,173 @@ async function showOutput(res) {
     const formattedTime = eventTime.toLocaleString();
 
     switch (event.type) {
+      case 'CommitCommentEvent': {
+        logger.debug('Handling CreateCommentEvent type.');
+
+        const action = event.payload.action;
+        const commitId = event.payload.commit_id?.substring(0, 7) || 'unknown';
+
+        let actionText;
+
+        switch (action) {
+          case 'created': {
+            actionText = 'Commented on';
+            break;
+          }
+          default: {
+            actionText = `${action.charAt(0).toUpperCase() + action.slice(1)} comment on`;
+          }
+        }
+
+        output += `- ${actionText} commit ${commitId} in ${eventRepo} at ${formattedTime}\n`;
+        break;
+      }
+      case 'CreateEvent': {
+        logger.debug('Handling CreateEvent type.');
+
+        const refType = event.payload.ref_type;
+        const ref = event.payload.ref;
+
+        let createMessage;
+
+        switch (refType) {
+          case 'repository': {
+            createMessage = `Created repository ${eventRepo}`;
+            break;
+          }
+          case 'branch': {
+            createMessage = `Created branch ${ref} in ${eventRepo}`;
+            break;
+          }
+          case 'tag': {
+            createMessage = `Created tag ${ref} in ${eventRepo}`;
+            break;
+          }
+          default:
+            createMessage = `Created ${refType} ${ref || ''} in ${eventRepo}`;
+        }
+
+        output += `- ${createMessage} at ${formattedTime}\n`;
+        break;
+      }
+      case 'DeleteEvent': {
+        logger.debug('Handling DeleteEvent type.');
+
+        let deletedName = event.payload.ref;
+        let deletedType = event.payload.ref_type;
+
+        logger.debug(`DeleteEvent details - Type: ${deletedType}, Name: ${deletedName}`);
+
+        output += `- Deleted ${deletedType} named ${deletedName} from ${eventRepo} at ${formattedTime}\n`;
+        break;
+      }
+      case 'ForkEvent': {
+        logger.debug('Handling ForkEvent type.');
+
+        output += `- Forked ${eventRepo} at ${formattedTime}\n`;
+        break;
+      }
+      case 'GollumEvent': {
+        logger.debug('Handling GollumEvent type.');
+
+        const page = event.payload.pages?.[0]?.page_name || 'unknown page';
+        output += `- Edited wiki page "${page}" in ${eventRepo} at ${formattedTime}\n`;
+        break;
+      }
+      case 'IssuesEvent': {
+        logger.debug('Handling IssuesEvent');
+
+        const action = event.payload.action;
+        const issueNumber = event.payload.issue?.number;
+        const issueTitle = event.payload.issue?.title;
+
+        let actionText = action.charAt(0).toUpperCase() + action.slice(1);
+
+        output += `- ${actionText} issue #${issueNumber} "${issueTitle}" in ${eventRepo} at ${formattedTime}\n`;
+        break;
+      }
+      case 'IssueCommentEvent': {
+        logger.debug('Handling IssueCommentEvent type.');
+
+         const action = event.payload.action;
+         const issueNumber = event.payload.issue?.number;
+         const isPullRequest = !!event.payload.issue?.pull_request;
+
+         let actionText;
+         let itemType = isPullRequest ? 'pull request' : 'issue';
+
+         switch (action) {
+          case 'created': {
+            actionText = 'Commented on';
+            break;
+          }
+          case 'edited': {
+            actionText = 'Edited comment on';
+            break;
+          }
+          case 'deleted': {
+            actionText = 'Deleted comment on';
+            break;
+          }
+          default: {
+            actionText = `${action.charAt(0).toUpperCase() + action.slice(1)} comment on`;
+          }
+        }
+
+        output += `- ${actionText} ${itemType} #${issueNumber} in ${eventRepo} at ${formattedTime}\n`;
+        break;
+      }
+      case 'MemberEvent': {
+        logger.debug('Handling MemberEvent type.');
+
+        const action = event.payload.action;
+        const memberLogin = event.payload.member?.login || 'unknown user';
+
+        let actionText;
+
+        switch (action) {
+          case 'added': {
+            actionText = `Added @${memberLogin} as collaborator to`;
+            break;
+          }
+          case 'removed': {
+            actionText = `Removed @${memberLogin} from`;
+            break;
+          }
+          case 'edited': {
+            actionText = `Edited permissions for @${memberLogin} in`;
+            break;
+          }
+          default: {
+            actionText = `${action.charAt(0).toUpperCase() + action.slice(1)} @${memberLogin} in`;
+          }
+        }
+
+        output += `- ${actionText} ${eventRepo} at ${formattedTime}\n`;
+        break;
+      }
+      case 'PublicEvent': {
+        logger.debug('Handling PublicEvent type.');
+
+        output += `- Made ${eventRepo} public at ${formattedTime}\n`;
+        break;
+      }
+      case 'PullRequestEvent': {
+        logger.debug('Handling PullRequestEvent type.');
+
+        const action = event.payload.action;
+        const prNumber = event.payload.pull_request?.number;
+        const prTitle = event.payload.pull_request?.title || 'unknown title';
+        const merged = event.payload.pull_request?.merged;
+
+        let actionText = action.charAt(0).toUpperCase() + action.slice(1);
+        if (action === 'closed' && merged) {
+          actionText = 'Merged';
+        }
+
+        output += `- ${actionText} pull request #${prNumber} "${prTitle}" in ${eventRepo} at ${formattedTime}\n`;
+        break;
+      }
       case 'PushEvent': {
         logger.debug('Handling PushEvent type.');
 
@@ -50,16 +217,23 @@ async function showOutput(res) {
         output += `- Pushed ${pushNum} commits to ${eventRepo} at ${formattedTime}\n`;
         break;
       }
-      case 'DeleteEvent': {
-        logger.debug('Handling DeleteEvent type.');
+      case 'ReleaseEvent': {
+        logger.debug('Handling ReleaseEvent type.');
 
-        let deletedName = event.payload.ref;
-        let deletedType = event.payload.ref_type;
+        const tag = event.payload.release?.tag_name || 'unknown';
 
-        logger.debug(`DeleteEvent details - Type: ${deletedType}, Name: ${deletedName}`);
-
-        output += `- Deleted ${deletedType} named ${deletedName} from ${eventRepo} at ${formattedTime}\n`;
+        output += `- Released ${tag} for ${eventRepo} at ${formattedTime}\n`;
         break;
+      }
+      case 'WatchEvent': {
+        logger.debug('Handling WatchEvent type.');
+
+        output += `- Starred ${eventRepo} at ${formattedTime}\n`;
+        break;
+      }
+      default: {
+        logger.debug(`Unhandled event type: ${event.type}`);
+        output += `- Unhandled event type: ${event.type}\n`;
       }
     }
   }
