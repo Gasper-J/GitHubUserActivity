@@ -24,6 +24,55 @@ async function showOutput(res) {
     const formattedTime = eventTime.toLocaleString();
 
     switch (event.type) {
+      case 'CreateCommentEvent': {
+        logger.debug('Handling CreateCommentEvent type.');
+
+        const action = event.payload.action;
+        const commitId = event.payload.commit_id?.substring(0, 7) || 'unknown';
+
+        let actionText;
+
+        switch (action) {
+          case 'created': {
+            actionText = 'Commented on';
+            break;
+          }
+          default: {
+            actionText = `${action.charAt(0).toUpperCase() + action.slice(1)} comment on`;
+          }
+        }
+
+        output += `- ${actionText} commit ${commitId} in ${eventRepo} at ${formattedTime}\n`;
+        break;
+      }
+      case 'CreateEvent': {
+        logger.debug('Handling CreateEvent type.');
+
+        const refType = event.payload.ref_type;
+        const ref = event.payload.ref;
+
+        let createMessage;
+
+        switch (refType) {
+          case 'repository': {
+            createMessage = `Created repository ${eventRepo}`;
+            break;
+          }
+          case 'branch': {
+            createMessage = `Created branch ${ref} in ${eventRepo}`;
+            break;
+          }
+          case 'tag': {
+            createMessage = `Created tag ${ref} in ${eventRepo}`;
+            break;
+          }
+          default:
+            createMessage = `Created ${refType} ${ref || ''} in ${eventRepo}`;
+        }
+
+        output += `- ${createMessage} at ${formattedTime}\n`;
+        break;
+      }
       case 'DeleteEvent': {
         logger.debug('Handling DeleteEvent type.');
 
@@ -33,12 +82,6 @@ async function showOutput(res) {
         logger.debug(`DeleteEvent details - Type: ${deletedType}, Name: ${deletedName}`);
 
         output += `- Deleted ${deletedType} named ${deletedName} from ${eventRepo} at ${formattedTime}\n`;
-        break;
-      }
-      case 'WatchEvent': {
-        logger.debug('Handling WatchEvent type.');
-
-        output += `- Starred ${eventRepo} at ${formattedTime}\n`;
         break;
       }
       case 'ForkEvent': {
@@ -52,6 +95,18 @@ async function showOutput(res) {
 
         const page = event.payload.pages?.[0]?.page_name || 'unknown page';
         output += `- Edited wiki page "${page}" in ${eventRepo} at ${formattedTime}\n`;
+        break;
+      }
+      case 'IssuesEvent': {
+        logger.debug('Handling IssuesEvent');
+
+        const action = event.payload.action;
+        const issueNumber = event.payload.issue?.number;
+        const issueTitle = event.payload.issue?.title;
+
+        let actionText = action.charAt(0).toUpperCase() + action.slice(1);
+
+        output += `- ${actionText} issue #${issueNumber} "${issueTitle}" in ${eventRepo} at ${formattedTime}\n`;
         break;
       }
       case 'IssueCommentEvent': {
@@ -83,6 +138,35 @@ async function showOutput(res) {
         }
 
         output += `- ${actionText} ${itemType} #${issueNumber} in ${eventRepo} at ${formattedTime}\n`;
+        break;
+      }
+      case 'MemberEvent': {
+        logger.debug('Handling MemberEvent type.');
+
+        const action = event.payload.action;
+        const memberLogin = event.payload.member?.login || 'unknown user';
+
+        let actionText;
+
+        switch (action) {
+          case 'added': {
+            actionText = `Added @${memberLogin} as collaborator to`;
+            break;
+          }
+          case 'removed': {
+            actionText = `Removed @${memberLogin} from`;
+            break;
+          }
+          case 'edited': {
+            actionText = `Edited permissions for @${memberLogin} in`;
+            break;
+          }
+          default: {
+            actionText = `${action.charAt(0).toUpperCase() + action.slice(1)} @${memberLogin} in`;
+          }
+        }
+
+        output += `- ${actionText} ${eventRepo} at ${formattedTime}\n`;
         break;
       }
       case 'PublicEvent': {
@@ -139,6 +223,12 @@ async function showOutput(res) {
         const tag = event.payload.release?.tag_name || 'unknown';
 
         output += `- Released ${tag} for ${eventRepo} at ${formattedTime}\n`;
+        break;
+      }
+      case 'WatchEvent': {
+        logger.debug('Handling WatchEvent type.');
+
+        output += `- Starred ${eventRepo} at ${formattedTime}\n`;
         break;
       }
       default: {
