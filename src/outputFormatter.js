@@ -24,7 +24,7 @@ async function showOutput(res) {
     const formattedTime = eventTime.toLocaleString();
 
     switch (event.type) {
-      case 'CreateCommentEvent': {
+      case 'CommitCommentEvent': {
         logger.debug('Handling CreateCommentEvent type.');
 
         const action = event.payload.action;
