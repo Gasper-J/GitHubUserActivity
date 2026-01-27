@@ -23,27 +23,27 @@ describe('User Input Tests', () => {
   });
   
   describe('getUsername', () => {
-    test('returns user input', () => {
+    it('returns user input', () => {
       readlineSync.question.mockReturnValue('octocat');
       expect(getUsername()).toBe('octocat');
       expect(logger.debug).toHaveBeenCalledWith('Prompting user for GitHub username.');
     });
 
-    test('returns empty string when user enters nothing', () => {
+    it('returns empty string when user enters nothing', () => {
       readlineSync.question.mockReturnValue('');
       expect(getUsername()).toBe('');
     });
   });
 
   describe('getAmount', () => {
-    test('returns a valid number', () => {
+    it('returns a valid number', () => {
       readlineSync.question.mockReturnValue('10');
       expect(getAmount()).toBe(10);
       expect(logger.debug).toHaveBeenCalledWith('Prompting user for number of events to display.');
       expect(logger.debug).toHaveBeenCalledWith('User entered valid number of events to display: 10');
     });
 
-    test('accepts boundary values', () => {
+    it('accepts boundary values', () => {
       readlineSync.question.mockReturnValue('1');
       expect(getAmount()).toBe(1);
 
@@ -51,7 +51,7 @@ describe('User Input Tests', () => {
       expect(getAmount()).toBe(50);
     });
 
-    test('handles invalid input and re-prompts until valid', () => {
+    it('handles invalid input and re-prompts until valid', () => {
       readlineSync.question
         .mockReturnValueOnce('abc')     // Invalid: not a number
         .mockReturnValueOnce('51')      // Invalid: too high
@@ -65,7 +65,7 @@ describe('User Input Tests', () => {
       expect(logger.debug).toHaveBeenCalledWith('Invalid number entered for events amount, re-prompting user.');
     });
 
-    test('handles empty input', () => {
+    it('handles empty input', () => {
       readlineSync.question
         .mockReturnValueOnce('')        // Invalid: empty
         .mockReturnValueOnce('10');     // Valid
@@ -76,38 +76,38 @@ describe('User Input Tests', () => {
   });
 
   describe('askSearchAgain', () => {
-    test('returns true for "Y" input', () => {
+    it('returns true for "Y" input', () => {
       readlineSync.question.mockReturnValue('Y');
       expect(askSearchAgain()).toBe(true);
       expect(logger.debug).toHaveBeenCalledWith('Prompting user to search for another GitHub user.');
     });
 
-    test('returns false for "N" input', () => {
+    it('returns false for "N" input', () => {
       readlineSync.question.mockReturnValue('N');
       expect(askSearchAgain()).toBe(false);
     });
 
-    test('returns true for lowercase "y"', () => {
+    it('returns true for lowercase "y"', () => {
       readlineSync.question.mockReturnValue('y');
       expect(askSearchAgain()).toBe(true);
     });
 
-    test('returns false for lowercase "n"', () => {
+    it('returns false for lowercase "n"', () => {
       readlineSync.question.mockReturnValue('n');
       expect(askSearchAgain()).toBe(false);
     });
 
-    test('returns false for empty input', () => {
+    it('returns false for empty input', () => {
       readlineSync.question.mockReturnValue('');
       expect(askSearchAgain()).toBe(false);
     });
 
-    test('returns false for whitespace input', () => {
+    it('returns false for whitespace input', () => {
       readlineSync.question.mockReturnValue('   ');
       expect(askSearchAgain()).toBe(false);
     });
 
-    test('returns false for invalid inputs', () => {
+    it('returns false for invalid inputs', () => {
       readlineSync.question.mockReturnValue('yes');
       expect(askSearchAgain()).toBe(false);
 
