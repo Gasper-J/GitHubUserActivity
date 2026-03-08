@@ -17,6 +17,12 @@ GitHub User Activity is a simple, interactive CLI tool that allows you to query 
 - **Detailed logging** - Optional verbose logging with persistent log files for debugging
 - **Secure** - API tokens are masked in logs to prevent accidental exposure
 
+## Prerequisites
+
+- **Node.js** (v14.0 or higher)
+- **npm** (comes with Node.js)
+- A GitHub Personal Access Token (optional but recommended)
+
 ## Installation
 
 1. **Clone the repository:**
@@ -62,21 +68,6 @@ octocat
 
 - **`--verbose` or `-v`** - Enable verbose logging to see detailed debug information
 
-## Supported Event Types
-
-The CLI formats and displays the following GitHub event types:
-- **PushEvent** - Commit activity with commit counts
-- **PullRequestEvent** - PR creation, reviews, and merges
-- **IssuesEvent** - Issue creation and updates
-- **CreateEvent** - New repositories, branches, or tags
-- **DeleteEvent** - Deleted branches or tags
-- **ForkEvent** - Repository forks
-- **StarEvent** - Starred repositories
-- **CommitCommentEvent** - Comments on commits
-- **PullRequestReviewEvent** - Code reviews
-- **GollumEvent** - Wiki page edits
-- And many more...
-
 ## Architecture
 
 ```
@@ -105,26 +96,6 @@ npm run test:coverage
 
 The coverage report is generated in `coverage/lcov-report/index.html`.
 
-## How It Works
-
-1. **User Input** - Collects GitHub username and number of events to fetch
-2. **API Call** - Uses GitHub's public events API endpoint: `https://api.github.com/users/<username>/events/public`
-3. **Data Processing** - Processes the JSON response and identifies each event type
-4. **Formatting** - Converts raw API data into human-readable descriptions with timestamps
-5. **Display** - Outputs the formatted activity to the terminal
-
-### Retry Logic
-
-The API client includes built-in retry logic that automatically retries failed requests up to 3 times with exponential backoff, ensuring reliability even with transient network issues.
-
-## Rate Limiting
-
-GitHub's API enforces rate limits. The CLI monitors your remaining requests and will alert you if you've exceeded the limit. Anonymous requests are limited to 60 per hour; authenticated requests allow 5,000 per hour.
-
-## Environment Variables
-
-- `API_KEY` - Your GitHub personal access token (required for higher rate limits and accessing private events for authenticated users)
-
 ## Technologies Used
 
 - **Node.js** - Runtime environment
@@ -132,10 +103,6 @@ GitHub's API enforces rate limits. The CLI monitors your remaining requests and 
 - **readline-sync** - Interactive CLI prompts
 - **dotenv** - Environment variable management
 - **Jest** - Unit testing framework
-
-## Project Status
-
-This project is actively maintained and features all MVP requirements plus timestamps for comprehensive activity tracking.
 
 ## Resources
 
@@ -145,8 +112,6 @@ This project is actively maintained and features all MVP requirements plus times
 
 ## License
 
-ISC
-
----
+Distributed under the MIT License. See LICENSE.txt for more information.
 
 **Built by Gasper-J**
