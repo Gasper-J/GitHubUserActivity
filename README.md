@@ -96,6 +96,12 @@ npm run test:coverage
 
 The coverage report is generated in `coverage/lcov-report/index.html`.
 
+## Getting Help
+
+If you encounter issues or have questions:
+- Check the [existing issues](https://github.com/Gasper-J/GitHubUserActivity/issues)
+- Open a new issue for bugs or feature requests
+
 ## Technologies Used
 
 - **Node.js** - Runtime environment
