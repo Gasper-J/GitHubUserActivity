@@ -9,10 +9,8 @@ GitHub User Activity is a simple, interactive CLI tool that allows you to query 
 ## Features
 
 **Key Features:**
-- **Interactive prompts** - Simply enter a GitHub username and specify how many events you want to see
 - **Comprehensive event support** - Handles all major GitHub event types (Push, Pull Request, Issues, Forks, Commits, and more)
 - **Timestamps** - Each activity includes the date and time it occurred
-- **Batch searching** - Search multiple users without restarting the application
 - **Error handling** - Gracefully handles API failures, rate limiting, and invalid usernames
 - **Detailed logging** - Optional verbose logging with persistent log files for debugging
 - **Secure** - API tokens are masked in logs to prevent accidental exposure
