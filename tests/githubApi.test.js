@@ -38,6 +38,12 @@ describe('GitHub API Functions', () => {
       expect(axios).toHaveBeenCalledTimes(3);
     });
 
+    it('should not retry on 401 unauthorized errors', async () => {
+      axios.mockRejectedValue(({ response: { status: 401, data: { message: 'Bad credentials' }}}))
+      await expect(axiosWithRetry('https://api.github.com/user', {})).rejects.toEqual({ response: { status: 401, data: { message: 'Bad credentials' }}});
+      expect(axios).toHaveBeenCalledTimes(1);
+    })
+
     it('should not retry on client errors (4xx)', async () => {
       axios.mockImplementationOnce(() => Promise.reject({ response: { status: 404 } }));
       await expect(axiosWithRetry('https://api.github.com/users/octocat/events', {})).rejects.toEqual({ response: { status: 404 } });
